@@ -3,9 +3,6 @@ interface PiPSurfaceProps {
   videoRef: React.RefObject<HTMLVideoElement | null>;
 }
 
-/**
- * PiP 用の描画ソース。画面上には表示しない（.pip-resources.hidden）。
- */
 export function PiPSurface({ canvasRef, videoRef }: PiPSurfaceProps) {
   return (
     <div className="pip-resources hidden">
