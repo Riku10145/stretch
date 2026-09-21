@@ -41,8 +41,9 @@ lib/                     # ドメイン / ユーティリティ
   config.ts              # メニューや時間の設定
   constants.ts           # 音の周波数・UI 状態クラス
   types.ts               # 型定義
+  session.ts             # フェーズ遷移・tick・ビープ判定（純粋関数）
   audioPlayer.ts         # Web Audio ラッパー
-  display.ts             # 表示文字列・状態クラスの導出（純粋関数）
+  display.ts             # 表示文字列・状態クラス・ボタン表示の導出（純粋関数）
   share.ts               # シェア処理
 ```
 
