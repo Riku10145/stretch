@@ -1,9 +1,3 @@
-import { AUDIO } from "./constants";
-
-/**
- * Web Audio API を使ったビープ音の再生を担当するクラス。
- * ユーザー操作後に init() を呼ぶことで AudioContext を起動する。
- */
 export class AudioPlayer {
   private audioCtx: AudioContext | null = null;
 
@@ -18,19 +12,6 @@ export class AudioPlayer {
     }
     if (this.audioCtx.state === "suspended") {
       void this.audioCtx.resume();
-    }
-  }
-
-  playCountdownSoundIfNeeded(
-    isWorking: boolean,
-    prevSeconds: number,
-    currentSeconds: number,
-  ): void {
-    const secondChanged = currentSeconds !== prevSeconds;
-    const isCountdownBeat = [3, 2, 1].includes(currentSeconds);
-
-    if (isWorking && secondChanged && isCountdownBeat) {
-      this.playBeep(AUDIO.FREQ_COUNTDOWN, 0.05);
     }
   }
 
