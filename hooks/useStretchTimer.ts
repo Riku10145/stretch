@@ -40,10 +40,6 @@ export function useStretchTimer(config: StretchConfig): StretchTimerApi {
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const lastTickRef = useRef<number>(0);
 
-  const sync = useCallback(() => {
-    setState({ ...engineRef.current });
-  }, []);
-
   const clearTimer = useCallback(() => {
     if (intervalRef.current !== null) {
       clearInterval(intervalRef.current);
@@ -51,7 +47,7 @@ export function useStretchTimer(config: StretchConfig): StretchTimerApi {
     }
   }, []);
 
-  const applyStep = useCallback(
+  const commit = useCallback(
     (step: SessionStep) => {
       engineRef.current = step.state;
       playBeeps(audioRef.current, step);
@@ -61,6 +57,7 @@ export function useStretchTimer(config: StretchConfig): StretchTimerApi {
       if (step.state.timerStatus !== "running") {
         clearTimer();
       }
+      setState(step.state);
     },
     [clearTimer],
   );
@@ -69,22 +66,18 @@ export function useStretchTimer(config: StretchConfig): StretchTimerApi {
     const now = Date.now();
     const deltaTime = (now - lastTickRef.current) / 1000;
     lastTickRef.current = now;
-    applyStep(applyTick(engineRef.current, config, deltaTime));
-    sync();
-  }, [applyStep, config, sync]);
+    commit(applyTick(engineRef.current, config, deltaTime));
+  }, [commit, config]);
 
   const start = useCallback(() => {
-    applyStep(startSession(engineRef.current));
+    commit(startSession(engineRef.current));
     clearTimer();
     intervalRef.current = setInterval(tick, TICK_INTERVAL_MS);
-    sync();
-  }, [applyStep, clearTimer, sync, tick]);
+  }, [clearTimer, commit, tick]);
 
   const pause = useCallback(() => {
-    clearTimer();
-    engineRef.current = pauseSession(engineRef.current);
-    sync();
-  }, [clearTimer, sync]);
+    commit(pauseSession(engineRef.current));
+  }, [commit]);
 
   const toggle = useCallback(() => {
     audioRef.current?.init();
@@ -96,11 +89,8 @@ export function useStretchTimer(config: StretchConfig): StretchTimerApi {
   }, [pause, start]);
 
   const skip = useCallback(() => {
-    const step = skipSession(engineRef.current, config);
-    if (step === null) return;
-    applyStep(step);
-    sync();
-  }, [applyStep, config, sync]);
+    commit(skipSession(engineRef.current, config));
+  }, [commit, config]);
 
   useEffect(() => clearTimer, [clearTimer]);
 

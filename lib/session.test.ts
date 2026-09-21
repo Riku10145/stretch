@@ -54,19 +54,22 @@ test("start from pause keeps the phase and plays no beep", () => {
 
 test("pause only flips timerStatus", () => {
   const running = state({ timerStatus: "running", timeLeft: 12 });
-  assert.deepEqual(pause(running), {
-    ...running,
-    timerStatus: "paused",
-  });
+  const result = pause(running);
+  assert.deepEqual(result.state, { ...running, timerStatus: "paused" });
+  assert.deepEqual(result.beeps, []);
+  assert.equal(result.clock, "keep");
 });
 
 test("skip from idle is a no-op", () => {
-  assert.equal(skip(state(), config), null);
+  const idle = state();
+  const result = skip(idle, config);
+  assert.equal(result.state, idle);
+  assert.deepEqual(result.beeps, []);
+  assert.equal(result.clock, "keep");
 });
 
 test("skip from work enters rest with the phase beep", () => {
   const result = skip(state({ timerStatus: "running", timeLeft: 12.3 }), config);
-  assert.ok(result);
   assert.equal(result.state.isWorking, false);
   assert.equal(result.state.timeLeft, 7);
   assert.equal(result.state.timerStatus, "running");
@@ -84,7 +87,6 @@ test("skip from rest of the first exercise enters the next work", () => {
     }),
     config,
   );
-  assert.ok(result);
   assert.equal(result.state.isWorking, true);
   assert.equal(result.state.currentSet, 1);
   assert.equal(result.state.timeLeft, 30);
@@ -100,7 +102,6 @@ test("skip from rest of the last exercise finishes the session", () => {
     }),
     config,
   );
-  assert.ok(result);
   assert.deepEqual(result.state, {
     timerStatus: "idle",
     timeLeft: 30,

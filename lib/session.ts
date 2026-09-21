@@ -43,15 +43,16 @@ export function start(state: TimerState): SessionStep {
   };
 }
 
-export function pause(state: TimerState): TimerState {
-  return { ...state, timerStatus: "paused" };
+function keep(state: TimerState): SessionStep {
+  return { state, beeps: [], clock: "keep" };
 }
 
-export function skip(
-  state: TimerState,
-  config: StretchConfig,
-): SessionStep | null {
-  if (state.timerStatus === "idle") return null;
+export function pause(state: TimerState): SessionStep {
+  return keep({ ...state, timerStatus: "paused" });
+}
+
+export function skip(state: TimerState, config: StretchConfig): SessionStep {
+  if (state.timerStatus === "idle") return keep(state);
   return switchPhase(state, config);
 }
 
