@@ -1,12 +1,17 @@
 import { UI_STATE, type UiStateClass } from "./constants";
 import type { StretchConfig, TimerState } from "./types";
 
-/** タイマーに表示する文字列（完了時は "FINISH"） */
+export interface TimerControlsView {
+  toggleLabel: string;
+  isPaused: boolean;
+  showSkip: boolean;
+  showShare: boolean;
+}
+
 export function resolveTimerText(state: TimerState): string {
   return state.finished ? "FINISH" : state.timeLeft.toFixed(1);
 }
 
-/** ステータス見出しに表示する文字列 */
 export function resolveStatusText(
   state: TimerState,
   config: StretchConfig,
@@ -23,7 +28,6 @@ export function resolveStatusText(
   return `休憩中 (次は: ${nextEx})`;
 }
 
-/** コンテナに付与する状態クラス */
 export function resolveStateClass(state: TimerState): UiStateClass {
   if (
     state.finished ||
@@ -33,4 +37,23 @@ export function resolveStateClass(state: TimerState): UiStateClass {
     return UI_STATE.STOPPED;
   }
   return state.isWorking ? UI_STATE.WORK : UI_STATE.REST;
+}
+
+export function resolveControls(state: TimerState): TimerControlsView {
+  const isRunning = state.timerStatus === "running";
+  const isPaused = state.timerStatus === "paused";
+  const toggleLabel = state.finished
+    ? "最初から"
+    : isRunning
+      ? "一時停止"
+      : isPaused
+        ? "再開"
+        : "スタート";
+
+  return {
+    toggleLabel,
+    isPaused,
+    showSkip: isRunning || isPaused,
+    showShare: state.finished,
+  };
 }
