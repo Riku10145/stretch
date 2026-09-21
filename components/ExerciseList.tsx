@@ -10,7 +10,6 @@ interface ExerciseListProps {
 export function ExerciseList({ exercises, currentSet }: ExerciseListProps) {
   const activeRef = useRef<HTMLLIElement>(null);
 
-  // アクティブなメニューが画面内に来るようスクロール
   useEffect(() => {
     activeRef.current?.scrollIntoView({
       behavior: "smooth",
