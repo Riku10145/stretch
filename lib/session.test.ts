@@ -33,7 +33,7 @@ test("start from idle clears finished and plays the start beep", () => {
   const result = start(state({ finished: true }));
   assert.equal(result.state.timerStatus, "running");
   assert.equal(result.state.finished, false);
-  assert.equal(result.resetClock, true);
+  assert.equal(result.clock, "reset");
   assert.deepEqual(result.beeps, [{ frequency: 660, duration: 0.2 }]);
 });
 
@@ -70,7 +70,7 @@ test("skip from work enters rest with the phase beep", () => {
   assert.equal(result.state.isWorking, false);
   assert.equal(result.state.timeLeft, 7);
   assert.equal(result.state.timerStatus, "running");
-  assert.equal(result.resetClock, true);
+  assert.equal(result.clock, "reset");
   assert.deepEqual(result.beeps, [{ frequency: 880, duration: 0.5 }]);
 });
 
@@ -108,7 +108,7 @@ test("skip from rest of the last exercise finishes the session", () => {
     currentSet: 0,
     finished: true,
   });
-  assert.equal(result.resetClock, false);
+  assert.equal(result.clock, "keep");
   assert.deepEqual(result.beeps, [
     { frequency: 880, duration: 0.5 },
     { frequency: 1000, duration: 0.8 },
@@ -123,7 +123,7 @@ test("applyTick subtracts delta and stays in the same phase", () => {
   );
   assert.equal(result.state.timeLeft, 29);
   assert.equal(result.state.isWorking, true);
-  assert.equal(result.resetClock, false);
+  assert.equal(result.clock, "keep");
   assert.deepEqual(result.beeps, []);
 });
 
@@ -163,7 +163,7 @@ test("applyTick at zero work time switches to rest", () => {
   );
   assert.equal(result.state.isWorking, false);
   assert.equal(result.state.timeLeft, 7);
-  assert.equal(result.resetClock, true);
+  assert.equal(result.clock, "reset");
   assert.deepEqual(result.beeps, [{ frequency: 880, duration: 0.5 }]);
 });
 
@@ -180,7 +180,7 @@ test("applyTick at zero last rest finishes the session", () => {
   );
   assert.equal(result.state.finished, true);
   assert.equal(result.state.timerStatus, "idle");
-  assert.equal(result.resetClock, false);
+  assert.equal(result.clock, "keep");
   assert.deepEqual(result.beeps, [
     { frequency: 880, duration: 0.5 },
     { frequency: 1000, duration: 0.8 },

@@ -55,7 +55,7 @@ export function useStretchTimer(config: StretchConfig): StretchTimerApi {
     (step: SessionStep) => {
       engineRef.current = step.state;
       playBeeps(audioRef.current, step);
-      if (step.resetClock) {
+      if (step.clock === "reset") {
         lastTickRef.current = Date.now();
       }
       if (step.state.timerStatus !== "running") {

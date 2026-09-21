@@ -8,10 +8,12 @@ export interface Beep {
   duration: number;
 }
 
+export type ClockIntent = "keep" | "reset";
+
 export interface SessionStep {
   state: TimerState;
   beeps: Beep[];
-  resetClock: boolean;
+  clock: ClockIntent;
 }
 
 export function createInitialState(config: StretchConfig): TimerState {
@@ -37,7 +39,7 @@ export function start(state: TimerState): SessionStep {
       timerStatus: "running",
     },
     beeps,
-    resetClock: true,
+    clock: "reset",
   };
 }
 
@@ -73,14 +75,14 @@ export function applyTick(
 
   const ticked = { ...state, timeLeft };
   if (timeLeft > 0) {
-    return { state: ticked, beeps, resetClock: false };
+    return { state: ticked, beeps, clock: "keep" };
   }
 
   const phase = switchPhase(ticked, config);
   return {
     state: phase.state,
     beeps: [...beeps, ...phase.beeps],
-    resetClock: phase.resetClock,
+    clock: phase.clock,
   };
 }
 
@@ -94,7 +96,7 @@ function finish(config: StretchConfig): SessionStep {
       finished: true,
     },
     beeps: [{ frequency: AUDIO.FREQ_FINISH, duration: 0.8 }],
-    resetClock: false,
+    clock: "keep",
   };
 }
 
@@ -105,7 +107,7 @@ function switchPhase(state: TimerState, config: StretchConfig): SessionStep {
     return {
       state: { ...state, isWorking: false, timeLeft: config.restTime },
       beeps: [phaseBeep],
-      resetClock: true,
+      clock: "reset",
     };
   }
 
@@ -115,7 +117,7 @@ function switchPhase(state: TimerState, config: StretchConfig): SessionStep {
     return {
       state: done.state,
       beeps: [phaseBeep, ...done.beeps],
-      resetClock: false,
+      clock: "keep",
     };
   }
 
@@ -127,6 +129,6 @@ function switchPhase(state: TimerState, config: StretchConfig): SessionStep {
       timeLeft: config.workTime,
     },
     beeps: [phaseBeep],
-    resetClock: true,
+    clock: "reset",
   };
 }
